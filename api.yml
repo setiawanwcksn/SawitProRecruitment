@@ -1,0 +1,193 @@
+# This is the OpenAPI specification for your service. It is used to generate the client code.
+# To generate the server code, use the Gradle task `openApiGenerate`. The 
+# generated code will be placed in `build/generate-resources/main`.
+#
+# We will evaluate you based on how well you design your API.
+# 1. How well it follows REST principles.
+# 2. How easy it is to understand and use.
+#
+# References
+# 1. https://swagger.io/specification/
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: User Service
+  license:
+    name: MIT
+servers:
+  - url: http://localhost
+paths:
+  /my-profile:
+    get:
+      summary: Get My Profile
+      description: |
+        This endpoint will accept JWT as a bearer token in the authorization
+        header. Upon successful verification, this will return the name of the user and the phone
+        number. Otherwise return HTTP 403 Forbidden code.
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Response"        
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /login:
+    post:
+      summary: Login
+      description: |
+        This endpoint accepts phone number and password fields. It checks the database whether the combination exists. Upon success, it returns the ID of the user and a JWT with algorithm RS256. It also increments the number of successful logins of that user in the database. Unsuccessful login will return HTTP 400 Bad Requests code.
+      parameters:
+        - name: phone_number
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Response"        
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /signup:
+    post:
+      summary: Sign up
+      description: |
+        This endpoint accepts phone number and password fields.
+      parameters:
+        - name: phone_number
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: full_name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful sign up
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Response"        
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: Profile Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /update-my-profile:
+    patch:
+      summary: Update My Profile
+      operationId: update-my-profile
+      description: |
+        This endpoint accepts JWT as bearer token in authorization header. It also accepts phone number and/or full name fields. If the request is authorized, it updates the fields that exist in the request, i.e. if full name exists then it updates the full name. However, since one phone number can only belong to one user, if a user wants to change to an already existing phone number it returns HTTP 409 Conflict. If the request is unauthorized, then return HTTP 403 Forbidden code.
+      parameters:
+        - name: phone_number
+          in: query
+          schema:
+            type: string
+        - name: full_name
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Response"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '404':
+          description: Profile Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /hello:
+    get:
+      summary: This is just a test endpoint to get you started. Please delete this endpoint.
+      operationId: hello
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test return
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Response"
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    Response:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
